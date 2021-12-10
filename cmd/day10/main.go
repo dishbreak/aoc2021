@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"sort"
 
 	"github.com/dishbreak/aoc2020/lib"
 )
@@ -23,7 +24,7 @@ var scores = map[rune]int{
 	'>': 25137,
 }
 
-func evaluateLine(line string) int {
+func evaluateLine(line string) (int, []rune) {
 	s := make([]rune, 0)
 	for _, c := range line {
 		switch c {
@@ -37,12 +38,12 @@ func evaluateLine(line string) int {
 			s = append(s, '>')
 		default:
 			if s[len(s)-1] != c {
-				return scores[c]
+				return scores[c], s
 			}
 			s = s[:len(s)-1]
 		}
 	}
-	return 0
+	return 0, s
 }
 
 func part1(input []string) int {
@@ -51,11 +52,44 @@ func part1(input []string) int {
 		if line == "" {
 			continue
 		}
-		acc += evaluateLine(line)
+		score, _ := evaluateLine(line)
+		acc += score
 	}
 	return acc
 }
 
+var completeScores = map[rune]int{
+	')': 1,
+	']': 2,
+	'}': 3,
+	'>': 4,
+}
+
+func autoComplete(seq []rune) int {
+	score := 0
+	for i := len(seq) - 1; i >= 0; i-- {
+		score *= 5
+		score += completeScores[seq[i]]
+	}
+	return score
+}
+
 func part2(input []string) int {
-	return 0
+	scores := make([]int, 0)
+
+	for _, line := range input {
+		if line == "" {
+			continue
+		}
+		errScore, remaining := evaluateLine(line)
+		if errScore != 0 {
+			continue
+		}
+
+		scores = append(scores, autoComplete(remaining))
+
+	}
+
+	sort.IntSlice(scores).Sort()
+	return scores[len(scores)/2]
 }
