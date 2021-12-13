@@ -7,19 +7,24 @@ import (
 )
 
 func main() {
-	input, err := lib.GetInput("inputs/dayNN.txt")
+	input, err := lib.GetInputAsSections("inputs/day13.txt")
 	if err != nil {
 		panic(err)
 	}
 
 	fmt.Printf("Part 1: %d\n", part1(input))
-	fmt.Printf("Part 2: %d\n", part2(input))
+	fmt.Printf("Part 2: \n%s\n", part2(input))
 }
 
-func part1(input []string) int {
-	return 0
+func part1(input [][]string) int {
+	p := paperFromInput(input)
+	p.fold(p.folds[0])
+
+	return p.count()
 }
 
-func part2(input []string) int {
-	return 0
+func part2(input [][]string) string {
+	p := paperFromInput(input)
+	p.foldUp()
+	return p.String()
 }
