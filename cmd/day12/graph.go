@@ -69,9 +69,10 @@ func (p *path) String() string {
 
 func (p *path) Branch(c *cave) *path {
 	n := &path{
-		c:        c,
-		visited:  make(map[*cave]int, len(p.visited)),
-		sequence: make([]*cave, len(p.visited)+1),
+		c:         c,
+		visited:   make(map[*cave]int, len(p.visited)),
+		sequence:  make([]*cave, len(p.visited)+1),
+		doubledUp: p.doubledUp,
 	}
 
 	for k, v := range p.visited {

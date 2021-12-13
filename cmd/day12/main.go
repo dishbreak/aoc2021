@@ -60,5 +60,15 @@ func part1(input []string) int {
 }
 
 func part2(input []string) int {
-	return 0
+	c := buildCavern(input[:len(input)-1])
+	return len(pathFind(c, func(p *path, c *cave) *path {
+		if visits, alreadyVisited := p.visited[c]; c.IsBig || !alreadyVisited {
+			return p.Branch(c)
+		} else if visits <= 2 && !p.doubledUp && c.ID != "start" {
+			r := p.Branch(c)
+			r.doubledUp = true
+			return r
+		}
+		return nil
+	}))
 }
