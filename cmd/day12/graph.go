@@ -52,9 +52,10 @@ func buildCavern(input []string) *cavern {
 }
 
 type path struct {
-	c        *cave
-	visited  map[*cave]bool
-	sequence []*cave
+	c         *cave
+	visited   map[*cave]int
+	sequence  []*cave
+	doubledUp bool
 }
 
 func (p *path) String() string {
@@ -69,7 +70,7 @@ func (p *path) String() string {
 func (p *path) Branch(c *cave) *path {
 	n := &path{
 		c:        c,
-		visited:  make(map[*cave]bool, len(p.visited)),
+		visited:  make(map[*cave]int, len(p.visited)),
 		sequence: make([]*cave, len(p.visited)+1),
 	}
 

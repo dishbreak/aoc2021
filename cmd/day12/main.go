@@ -16,14 +16,14 @@ func main() {
 	fmt.Printf("Part 2: %d\n", part2(input))
 }
 
-func pathFind(c *cavern) []*path {
+func pathFind(c *cavern, visitNext func(p *path, c *cave) *path) []*path {
 	start := c.Caves["start"]
 	q := make([]*path, 1)
 	ways := make([]*path, 0)
 	q[0] = &path{
 		sequence: []*cave{start},
 		c:        start,
-		visited:  map[*cave]bool{},
+		visited:  map[*cave]int{},
 	}
 
 	for len(q) > 0 {
@@ -35,12 +35,12 @@ func pathFind(c *cavern) []*path {
 			continue
 		}
 
-		n.visited[n.c] = true
+		n.visited[n.c]++
 
 		for _, next := range n.c.Neighbors {
-			_, alreadyVisited := n.visited[next]
-			if next.IsBig || !alreadyVisited {
-				q = append(q, n.Branch(next))
+			nextPath := visitNext(n, next)
+			if nextPath != nil {
+				q = append(q, nextPath)
 			}
 		}
 
@@ -51,7 +51,12 @@ func pathFind(c *cavern) []*path {
 
 func part1(input []string) int {
 	c := buildCavern(input[:len(input)-1])
-	return len(pathFind(c))
+	return len(pathFind(c, func(p *path, c *cave) *path {
+		if _, alreadyVisited := p.visited[c]; c.IsBig || !alreadyVisited {
+			return p.Branch(c)
+		}
+		return nil
+	}))
 }
 
 func part2(input []string) int {
