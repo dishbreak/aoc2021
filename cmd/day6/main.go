@@ -56,7 +56,6 @@ func simulate(fishes []int, days int) int64 {
 		zero := hist[0]
 		hist = append(hist[1:], zero)
 		hist[6] += zero
-		fmt.Println(day, hist)
 	}
 
 	sum := int64(0)
