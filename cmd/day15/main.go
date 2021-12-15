@@ -79,29 +79,16 @@ func (h *pointHeap) Pop() interface{} {
 	return x
 }
 
-func dijkstra(space map[image.Point]int, end image.Point, i, j int) int {
-	return 0
-}
-
-func part1(input []string) int {
-	points := (len(input) - 1) * len(input[0])
+func dijkstra(space map[image.Point]int, end image.Point) int {
+	points := (end.X + 1) * (end.Y + 1)
 	start := image.Point{}
-	end := image.Point{len(input[0]) - 1, len(input) - 2}
 	infinity := points * 9
-	space := make(map[image.Point]int, points)
 	dist := make(map[image.Point]int, points)
 	visited := make(map[image.Point]int, points)
 	minHeap := &pointHeap{}
 
-	for y, line := range input {
-		if line == "" {
-			continue
-		}
-		for x, col := range line {
-			p := image.Point{x, y}
-			space[p] = int(col - '0')
-			dist[p] = infinity
-		}
+	for k := range space {
+		dist[k] = infinity
 	}
 
 	dist[start] = 0
@@ -134,6 +121,72 @@ func part1(input []string) int {
 	}
 }
 
+func part1(input []string) int {
+	space := make(map[image.Point]int)
+
+	for y, line := range input {
+		if line == "" {
+			continue
+		}
+		for x, col := range line {
+			p := image.Point{x, y}
+			space[p] = int(col - '0')
+		}
+	}
+
+	end := image.Point{len(input[0]) - 1, len(input) - 2}
+
+	return dijkstra(space, end)
+}
+
 func part2(input []string) int {
-	return 0
+	space := make(map[image.Point]int)
+	b := make(map[image.Point]int)
+
+	tEnd := image.Point{len(input[0]) - 1, len(input) - 2}
+	tEnd = tEnd.Add(image.Point{1, 1})
+	end := tEnd.Mul(5).Add(image.Point{-1, -1})
+
+	for y, line := range input {
+		if line == "" {
+			continue
+		}
+		for x, col := range line {
+			p := image.Point{x, y}
+			r := int(col - '0')
+			space[p] = r
+			b[p] = r
+		}
+	}
+
+	base := []int{1, 2, 3, 4, 5, 6, 7, 8, 9}
+	lookups := make(map[int][][]int)
+	for i := 1; i <= 9; i++ {
+		progression := make([]int, 9)
+		copy(progression, base)
+		progression = append(progression[i-1:], progression[:i-1]...)
+		lookups[i] = make([][]int, 5)
+		for r := 0; r < 5; r++ {
+			lookups[i][r] = make([]int, 5)
+			if r != 0 {
+				progression = append(progression[1:], progression[:1]...)
+			}
+			copy(lookups[i][r], progression)
+		}
+	}
+
+	for i := 0; i < 5; i++ {
+		for j := 0; j < 5; j++ {
+			if i == 0 && j == 0 {
+				continue
+			}
+			for k, v := range b {
+				translated := image.Point{k.X + (i * tEnd.X), k.Y + (j * tEnd.Y)}
+				tVal := lookups[v][j][i]
+				space[translated] = tVal
+			}
+		}
+	}
+
+	return dijkstra(space, end)
 }
