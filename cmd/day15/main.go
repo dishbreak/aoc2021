@@ -19,34 +19,6 @@ func main() {
 	fmt.Printf("Part 2: %d\n", part2(input))
 }
 
-type path struct {
-	pt      image.Point
-	risk    int
-	visited map[image.Point]int
-	steps   []image.Point
-}
-
-func (p *path) branch(o image.Point) *path {
-	other := &path{
-		pt:      o,
-		risk:    p.risk,
-		visited: make(map[image.Point]int, len(p.visited)),
-		steps:   make([]image.Point, len(p.steps)+1),
-	}
-
-	for i, step := range p.steps {
-		other.steps[i] = step
-	}
-
-	for k, v := range p.visited {
-		other.visited[k] = v
-	}
-
-	other.steps[len(other.steps)-1] = o
-
-	return other
-}
-
 type pointDist struct {
 	p image.Point
 	d int
