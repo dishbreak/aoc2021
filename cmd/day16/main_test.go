@@ -48,3 +48,51 @@ func TestParseVersionSums(t *testing.T) {
 		})
 	}
 }
+
+func TestParsePacketValues(t *testing.T) {
+	type testCase struct {
+		hexDump string
+		sum     int
+	}
+
+	testCases := []testCase{
+		{
+			hexDump: "C200B40A82",
+			sum:     3,
+		},
+		{
+			hexDump: "04005AC33890",
+			sum:     54,
+		},
+		{
+			hexDump: "880086C3E88112",
+			sum:     7,
+		},
+		{
+			hexDump: "CE00C43D881120",
+			sum:     9,
+		},
+		{
+			hexDump: "9C0141080250320F1802104A08",
+			sum:     1,
+		},
+		{
+			hexDump: "D8005AC2A8F0",
+			sum:     1,
+		},
+		{
+			hexDump: "F600BC2D8F",
+			sum:     0,
+		},
+		{
+			hexDump: "9C005AC2F8F0",
+			sum:     0,
+		},
+	}
+
+	for i, tc := range testCases {
+		t.Run(fmt.Sprintf("test case %d", i), func(t *testing.T) {
+			assert.Equal(t, tc.sum, parseToValue(tc.hexDump))
+		})
+	}
+}

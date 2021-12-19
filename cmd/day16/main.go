@@ -34,6 +34,65 @@ type packet struct {
 	value           uint
 }
 
+func (p *packet) Evaluate() int {
+	switch p.typeId {
+	case 0:
+		acc := 0
+		for _, subP := range p.subpackets {
+			acc += subP.Evaluate()
+		}
+		return acc
+	case 1:
+		acc := 1
+		for _, subP := range p.subpackets {
+			acc *= subP.Evaluate()
+		}
+		return acc
+	case 2:
+		min := p.subpackets[0].Evaluate()
+		for i, subP := range p.subpackets {
+			if i == 0 {
+				continue
+			}
+			v := subP.Evaluate()
+			if v < min {
+				min = v
+			}
+		}
+		return min
+	case 3:
+		max := p.subpackets[0].Evaluate()
+		for i, subP := range p.subpackets {
+			if i == 0 {
+				continue
+			}
+			v := subP.Evaluate()
+			if v > max {
+				max = v
+			}
+		}
+		return max
+	case 4:
+		return int(p.value)
+	case 5:
+		if p.subpackets[0].Evaluate() > p.subpackets[1].Evaluate() {
+			return 1
+		}
+		return 0
+	case 6:
+		if p.subpackets[0].Evaluate() < p.subpackets[1].Evaluate() {
+			return 1
+		}
+		return 0
+	case 7:
+		if p.subpackets[0].Evaluate() == p.subpackets[1].Evaluate() {
+			return 1
+		}
+		return 0
+	}
+	return 0
+}
+
 func parseLiteralValue(b *BitBuffer) (uint, error) {
 	val := uint(0)
 	for contBit, err := b.PopBits(1); contBit == 1; contBit, err = b.PopBits(1) {
@@ -92,8 +151,6 @@ func parseSubpacketBitCount(b *BitBuffer) ([]*packet, error) {
 
 	return result, nil
 }
-
-type subPacketParser func(b *BitBuffer) ([]*packet, error)
 
 func parsePacket(b *BitBuffer) (*packet, error) {
 	p := &packet{
@@ -167,6 +224,19 @@ func part1(input []string) int {
 	return acc
 }
 
+func parseToValue(line string) int {
+	b, _ := NewBitBuffer(line)
+	p, _ := parsePacket(b)
+	return p.Evaluate()
+}
+
 func part2(input []string) int {
-	return 0
+	acc := 0
+	for _, line := range input {
+		if line == "" {
+			continue
+		}
+		acc += parseToValue(line)
+	}
+	return acc
 }
