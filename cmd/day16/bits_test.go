@@ -7,36 +7,10 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestGetMask(t *testing.T) {
-	type testCase struct {
-		bits, offset int
-		result       byte
-	}
-
-	testCases := []testCase{
-		{
-			bits:   3,
-			offset: 3,
-			result: byte(0b00111000),
-		},
-		{
-			bits:   1,
-			offset: 5,
-			result: byte(0b00100000),
-		},
-	}
-
-	for i, tc := range testCases {
-		t.Run(fmt.Sprintf("test case %d", i), func(t *testing.T) {
-			assert.Equal(t, tc.result, getMask(tc.bits, tc.offset))
-		})
-	}
-}
-
 func TestPopBits(t *testing.T) {
 	type popCall struct {
 		bits   int
-		result int
+		result uint
 	}
 	type testCase struct {
 		input []byte
@@ -51,15 +25,15 @@ func TestPopBits(t *testing.T) {
 			pops: []popCall{
 				{
 					bits:   3,
-					result: 6,
+					result: uint(6),
 				},
 				{
 					bits:   1,
-					result: 1,
+					result: uint(1),
 				},
 				{
 					bits:   4,
-					result: 3,
+					result: uint(3),
 				},
 			},
 		},
@@ -70,15 +44,15 @@ func TestPopBits(t *testing.T) {
 			pops: []popCall{
 				{
 					bits:   3,
-					result: 6,
+					result: uint(6),
 				},
 				{
-					bits:   8,
-					result: 0b10011001,
+					bits:   5,
+					result: uint(0b10011),
 				},
 				{
 					bits:   17,
-					result: 0b01001001100111010,
+					result: uint(0b00101001001100111),
 				},
 			},
 		},
@@ -87,11 +61,14 @@ func TestPopBits(t *testing.T) {
 	for i, tc := range testCases {
 		t.Run(fmt.Sprintf("test case %d", i), func(t *testing.T) {
 			b := &BitBuffer{
-				data: tc.input,
+				data:  tc.input,
+				limit: len(tc.input) * 8,
 			}
 
 			for _, call := range tc.pops {
-				assert.Equal(t, call.result, b.PopBits(call.bits))
+				actual, err := b.PopBits(call.bits)
+				assert.Nil(t, err)
+				assert.Equal(t, call.result, actual)
 			}
 		})
 	}

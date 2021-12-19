@@ -42,7 +42,9 @@ func TestParseVersionSums(t *testing.T) {
 		t.Run(fmt.Sprintf("test case %d", i), func(t *testing.T) {
 			b, err := NewBitBuffer(tc.hexDump)
 			assert.Nil(t, err)
-			assert.Equal(t, tc.sum, parseVersionSums(b))
+			p, err := parsePacket(b)
+			assert.Nil(t, err)
+			assert.Equal(t, tc.sum, parseVersionSums(p))
 		})
 	}
 }
