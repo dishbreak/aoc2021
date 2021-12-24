@@ -38,6 +38,7 @@ func nodeFromReader(buf io.ByteReader) *node {
 
 	if c, _ := buf.ReadByte(); c == '[' {
 		result.left = nodeFromReader(buf)
+		result.left.root = result
 	} else if v := c - '0'; v <= 9 {
 		result.value = int(v)
 		return result
@@ -48,6 +49,7 @@ func nodeFromReader(buf io.ByteReader) *node {
 	}
 
 	result.right = nodeFromReader(buf)
+	result.right.root = result
 	if c, _ := buf.ReadByte(); c != ']' {
 		panic(errors.New("expected closing brace"))
 	}
@@ -58,8 +60,15 @@ func (n *node) IsLeaf() bool {
 	return n.left == nil && n.right == nil
 }
 
-func (n *node) Explode() bool {
+func (n *node) Reduce() {
+	for l := n.Explode(); len(l) > 0; l = n.Explode() {
+		for _, t := range l {
+			t.Split()
+		}
+	}
+}
 
+func (n *node) Explode() []*node {
 	type frame struct {
 		n     *node
 		level int
@@ -69,29 +78,59 @@ func (n *node) Explode() bool {
 	s = append(s, frame{n.right, 1})
 	s = append(s, frame{n.left, 1})
 
+	result := make([]*node, 0)
+
 	for len(s) > 0 {
 		p := s[len(s)-1]
-		s = s[1:]
+		s = s[:len(s)-1]
 
-		if p.level > 4 && p.n.IsLeaf() {
-			if t := p.n.root.root.left; t != nil && t.IsLeaf() {
-				t.value += p.n.left.value
-			}
-			if t := p.n.root.root.right; t != nil && t.IsLeaf() {
-				t.value += p.n.right.value
-			}
-			return true
-		}
-
-		if p.n.IsLeaf() {
+		if !p.n.IsLeaf() {
+			s = append(s, frame{p.n.right, p.level + 1})
+			s = append(s, frame{p.n.left, p.level + 1})
 			continue
 		}
 
-		s = append(s, frame{p.n.right, p.level + 1})
-		s = append(s, frame{p.n.left, p.level + 1})
+		if p.level >= 5 {
+			pair := p.n.root
+
+			r := pair.root.left
+			for ; r != nil && !r.IsLeaf(); r = r.left {
+			}
+			if r != nil {
+				r.value += pair.left.value
+				result = append(result, r)
+			}
+
+			r = pair.root.right
+			for ; r != nil && !r.IsLeaf(); r = r.right {
+
+			}
+			if r != nil {
+				r.value += pair.right.value
+				result = append(result, r)
+			}
+
+			pair.value = 0
+			pair.right = nil
+			pair.left = nil
+			return result
+		}
+
 	}
 
-	return false
+	return result
+}
+
+func (n *node) Split() {
+	if n.value < 10 {
+		return
+	}
+
+	base, extra := n.value/2, n.value%2
+	n.value = -1
+
+	n.left = &node{value: base}
+	n.right = &node{value: base + extra}
 }
 
 func add(l, r *node) *node {

@@ -53,6 +53,43 @@ func TestAdd(t *testing.T) {
 	}
 }
 
+func TestExplode(t *testing.T) {
+	type testCase struct {
+		input, expected string
+	}
+
+	testCases := []testCase{
+		{
+			input:    "[[[[[9,8],1],2],3],4]",
+			expected: "[[[[0,9],2],3],4]",
+		},
+		{
+			input:    "[7,[6,[5,[4,[3,2]]]]]",
+			expected: "[7,[6,[5,[7,0]]]]",
+		},
+		{
+			input:    "[[6,[5,[4,[3,2]]]],1]",
+			expected: "[[6,[5,[7,0]]],3]",
+		},
+		{
+			input:    "[[3,[2,[1,[7,3]]]],[6,[5,[4,[3,2]]]]]",
+			expected: "[[3,[2,[8,0]]],[9,[5,[4,[3,2]]]]]",
+		},
+		{
+			input:    "[[3,[2,[8,0]]],[9,[5,[4,[3,2]]]]]",
+			expected: "[[3,[2,[8,0]]],[9,[5,[7,0]]]]",
+		},
+	}
+
+	for i, tc := range testCases {
+		t.Run(fmt.Sprintf("test case %d", i), func(t *testing.T) {
+			n := NodeFromString(tc.input)
+			n.Explode()
+			assert.Equal(t, tc.expected, n.String())
+		})
+	}
+}
+
 func TestNodeFromString(t *testing.T) {
 	tests := []string{
 		"[1,2]",
