@@ -90,6 +90,29 @@ func TestExplode(t *testing.T) {
 	}
 }
 
+func TestMagnitude(t *testing.T) {
+	type testCase struct {
+		input     string
+		magnitude int
+	}
+
+	testCases := []testCase{
+		{input: "[[1,2],[[3,4],5]]", magnitude: 143.},
+		{input: "[[[[0,7],4],[[7,8],[6,0]]],[8,1]]", magnitude: 1384.},
+		{input: "[[[[1,1],[2,2]],[3,3]],[4,4]]", magnitude: 445.},
+		{input: "[[[[3,0],[5,3]],[4,4]],[5,5]]", magnitude: 791.},
+		{input: "[[[[5,0],[7,4]],[5,5]],[6,6]]", magnitude: 1137.},
+		{input: "[[[[8,7],[7,7]],[[8,6],[7,7]]],[[[0,7],[6,6]],[8,7]]]", magnitude: 3488},
+	}
+
+	for i, tc := range testCases {
+		t.Run(fmt.Sprintf("test case %d", i), func(t *testing.T) {
+			n := NodeFromString(tc.input)
+			assert.Equal(t, tc.magnitude, n.Magnitude())
+		})
+	}
+}
+
 func TestNodeFromString(t *testing.T) {
 	tests := []string{
 		"[1,2]",

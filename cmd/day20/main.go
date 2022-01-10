@@ -43,9 +43,7 @@ func part1(input [][]string) int {
 
 	for y, line := range input[1] {
 		for x, col := range line {
-			if col == '#' {
-				space[image.Point{x, y}] = true
-			}
+			space[image.Point{x, y}] = col == '#'
 		}
 	}
 
@@ -58,7 +56,8 @@ func part1(input [][]string) int {
 				p := image.Point{x, y}
 				val := 0
 				for i, n := range neighbors {
-					if space[p.Add(n)] {
+					n2 := p.Add(n)
+					if space[n2] {
 						val = val | (1 << i)
 					}
 				}

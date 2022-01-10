@@ -68,6 +68,33 @@ func (n *node) Reduce() {
 	}
 }
 
+func (n *node) Magnitude() int {
+	if n.IsLeaf() {
+		return n.value
+	}
+
+	return 3*n.left.Magnitude() + 2*n.right.Magnitude()
+}
+
+func (n *node) explodeNode() []*node {
+	result := make([]*node, 0)
+
+	for p, r := n, n.root; r != nil; p, r = r, r.root {
+		if r.right == p {
+			r.left.value += p.right.value
+			result = append(result, r.left)
+		}
+		if r.left == p {
+			r.right.value += p.left.value
+			result = append(result, r.right)
+		}
+		if len(result) == 2 {
+			break
+		}
+	}
+	return result
+}
+
 func (n *node) Explode() []*node {
 	type frame struct {
 		n     *node
@@ -78,7 +105,7 @@ func (n *node) Explode() []*node {
 	s = append(s, frame{n.right, 1})
 	s = append(s, frame{n.left, 1})
 
-	result := make([]*node, 0)
+	var result []*node
 
 	for len(s) > 0 {
 		p := s[len(s)-1]
@@ -92,27 +119,9 @@ func (n *node) Explode() []*node {
 
 		if p.level >= 5 {
 			pair := p.n.root
-
-			r := pair.root.left
-			for ; r != nil && !r.IsLeaf(); r = r.left {
-			}
-			if r != nil {
-				r.value += pair.left.value
-				result = append(result, r)
-			}
-
-			r = pair.root.right
-			for ; r != nil && !r.IsLeaf(); r = r.right {
-
-			}
-			if r != nil {
-				r.value += pair.right.value
-				result = append(result, r)
-			}
-
+			result = pair.explodeNode()
 			pair.value = 0
-			pair.right = nil
-			pair.left = nil
+			pair.right, pair.left = nil, nil
 			return result
 		}
 
