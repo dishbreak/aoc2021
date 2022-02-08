@@ -244,11 +244,8 @@ func (n *node) String() string {
 }
 
 func part1(input []string) int {
-	operands := make([]*node, len(input))
-	for i, val := range input {
-		if val == "" {
-			continue
-		}
+	operands := make([]*node, len(input)-1)
+	for i, val := range input[:len(input)-1] {
 		operands[i] = NodeFromString(val)
 	}
 
@@ -263,6 +260,30 @@ func part1(input []string) int {
 	return acc.Magnitude()
 }
 
+func addStrs(one, other string) int {
+	n1, n2 := NodeFromString(one), NodeFromString(other)
+	return add(n1, n2).Magnitude()
+}
+
 func part2(input []string) int {
-	return 0
+	operands := input[:len(input)-1]
+
+	max := -1
+	for i := 0; i < len(operands); i++ {
+		for j := 0; j < len(operands); j++ {
+			if i == j {
+				continue
+			}
+			val := addStrs(operands[i], operands[j])
+			if val > max {
+				max = val
+			}
+			val = addStrs(operands[j], operands[i])
+			if val > max {
+				max = val
+			}
+		}
+	}
+
+	return max
 }

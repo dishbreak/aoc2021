@@ -18,6 +18,7 @@ var input = []string{
 	"[[9,3],[[9,9],[6,[4,9]]]]",
 	"[[2,[[7,7],7]],[[5,8],[[9,3],[0,2]]]]",
 	"[[[[5,2],5],[8,[3,7]]],[[5,[7,5]],[4,4]]]",
+	"",
 }
 
 func TestPart1(t *testing.T) {
@@ -25,7 +26,7 @@ func TestPart1(t *testing.T) {
 }
 
 func TestPart2(t *testing.T) {
-	assert.Equal(t, 0, part2(input))
+	assert.Equal(t, 3993, part2(input))
 }
 
 func newNode(l, r int) *node {
