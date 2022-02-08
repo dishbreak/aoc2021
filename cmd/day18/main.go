@@ -76,22 +76,66 @@ func (n *node) Magnitude() int {
 	return 3*n.left.Magnitude() + 2*n.right.Magnitude()
 }
 
+func (n *node) rightMost() *node {
+	if n.IsLeaf() {
+		return n
+	}
+
+	c := n
+	for !c.IsLeaf() {
+		c = c.right
+	}
+	return c
+}
+
+func (n *node) leftOf() *node {
+	if n.root == nil {
+		return nil
+	}
+
+	if n.root.right == n {
+		return n.root.left.rightMost()
+	}
+	return n.root.leftOf()
+}
+
+func (n *node) leftMost() *node {
+	if n.IsLeaf() {
+		return n
+	}
+
+	c := n
+	for !c.IsLeaf() {
+		c = c.left
+	}
+	return c
+}
+
+func (n *node) rightOf() *node {
+	if n.root == nil {
+		return nil
+	}
+
+	if n.root.left == n {
+		return n.root.right.leftMost()
+	}
+
+	return n.root.rightOf()
+}
+
 func (n *node) explodeNode() []*node {
 	result := make([]*node, 0)
 
-	for p, r := n, n.root; r != nil; p, r = r, r.root {
-		if r.right == p {
-			r.left.value += p.right.value
-			result = append(result, r.left)
-		}
-		if r.left == p {
-			r.right.value += p.left.value
-			result = append(result, r.right)
-		}
-		if len(result) == 2 {
-			break
-		}
+	if l := n.leftOf(); l != nil {
+		l.value += n.left.value
+		result = append(result, l)
 	}
+
+	if r := n.rightOf(); r != nil {
+		r.value += n.right.value
+		result = append(result, r)
+	}
+
 	return result
 }
 
@@ -148,6 +192,8 @@ func add(l, r *node) *node {
 	}
 	l.root, r.root = result, result
 	result.left, result.right = l, r
+
+	result.Reduce()
 
 	return result
 }

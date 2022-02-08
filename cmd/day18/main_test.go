@@ -24,21 +24,28 @@ func newNode(l, r int) *node {
 	)
 }
 
-func TestAdd(t *testing.T) {
+func TestAddBasic(t *testing.T) {
 	type testCase struct {
 		operands []*node
 		expected string
 	}
 
 	testCases := []testCase{
+		// {
+		// 	operands: []*node{
+		// 		newNode(1, 1),
+		// 		newNode(2, 2),
+		// 		newNode(3, 3),
+		// 		newNode(4, 4),
+		// 	},
+		// 	expected: "[[[[1,1],[2,2]],[3,3]],[4,4]]",
+		// },
 		{
 			operands: []*node{
+				NodeFromString("[[[[4,3],4],4],[7,[[8,4],9]]]"),
 				newNode(1, 1),
-				newNode(2, 2),
-				newNode(3, 3),
-				newNode(4, 4),
 			},
-			expected: "[[[[1,1],[2,2]],[3,3]],[4,4]]",
+			expected: "[[[[0,7],4],[[7,8],[6,0]]],[8,1]]",
 		},
 	}
 
