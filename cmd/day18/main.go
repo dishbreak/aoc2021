@@ -26,6 +26,16 @@ type node struct {
 }
 
 func NodeFromString(input string) *node {
+	defer func() {
+		if r := recover(); r != nil {
+			if err, ok := r.(error); ok {
+				panic(fmt.Errorf("failed to parse '%s': %s", input, err))
+			} else {
+				panic(err)
+			}
+		}
+	}()
+
 	buf := strings.NewReader(input)
 	n := nodeFromReader(buf)
 	return n
@@ -39,6 +49,13 @@ func nodeFromReader(buf io.ByteReader) *node {
 	if c, _ := buf.ReadByte(); c == '[' {
 		result.left = nodeFromReader(buf)
 		result.left.root = result
+	} else if c == 'x' {
+		acc := 0
+		for d, _ := buf.ReadByte(); d != 'x'; d, _ = buf.ReadByte() {
+			acc = (acc * 10) + int(d-'0')
+		}
+		result.value = acc
+		return result
 	} else if v := c - '0'; v <= 9 {
 		result.value = int(v)
 		return result
@@ -61,10 +78,18 @@ func (n *node) IsLeaf() bool {
 }
 
 func (n *node) Reduce() {
-	for l := n.Explode(); len(l) > 0; l = n.Explode() {
-		for _, t := range l {
-			t.Split()
+	reduced := false
+	for !reduced {
+		// don't short circuit, so evaluate and then set reduced
+		exploded := n.Explode()
+
+		if exploded {
+			continue
 		}
+
+		split := n.Split()
+
+		reduced = !exploded && !split
 	}
 }
 
@@ -139,17 +164,29 @@ func (n *node) explodeNode() []*node {
 	return result
 }
 
-func (n *node) Explode() []*node {
-	type frame struct {
-		n     *node
-		level int
-	}
+func (n *node) Explode() bool {
+	return n.dfsSearch(func(f frame) bool {
+		if f.level >= 5 {
+			pair := f.n.root
+			pair.explodeNode()
+			pair.value = 0
+			pair.right, pair.left = nil, nil
+			return true
+		}
+		return false
+	})
+}
+
+type frame struct {
+	n     *node
+	level int
+}
+
+func (n *node) dfsSearch(callback func(frame) bool) bool {
 	s := make([]frame, 0)
 
 	s = append(s, frame{n.right, 1})
 	s = append(s, frame{n.left, 1})
-
-	var result []*node
 
 	for len(s) > 0 {
 		p := s[len(s)-1]
@@ -161,29 +198,30 @@ func (n *node) Explode() []*node {
 			continue
 		}
 
-		if p.level >= 5 {
-			pair := p.n.root
-			result = pair.explodeNode()
-			pair.value = 0
-			pair.right, pair.left = nil, nil
-			return result
+		hit := callback(p)
+		if hit {
+			return true
 		}
 
 	}
 
-	return result
+	return false
 }
 
-func (n *node) Split() {
-	if n.value < 10 {
-		return
-	}
+func (n *node) Split() bool {
+	return n.dfsSearch(func(f frame) bool {
+		if f.n.value < 10 {
+			return false
+		}
 
-	base, extra := n.value/2, n.value%2
-	n.value = -1
+		base, extra := f.n.value/2, f.n.value%2
+		f.n.value = -1
 
-	n.left = &node{value: base}
-	n.right = &node{value: base + extra}
+		f.n.left = &node{value: base, root: f.n}
+		f.n.right = &node{value: base + extra, root: f.n}
+		return true
+	})
+
 }
 
 func add(l, r *node) *node {
@@ -206,7 +244,23 @@ func (n *node) String() string {
 }
 
 func part1(input []string) int {
-	return 0
+	operands := make([]*node, len(input))
+	for i, val := range input {
+		if val == "" {
+			continue
+		}
+		operands[i] = NodeFromString(val)
+	}
+
+	acc := operands[0]
+	for _, other := range operands[1:] {
+		if other == nil {
+			continue
+		}
+		acc = add(acc, other)
+	}
+
+	return acc.Magnitude()
 }
 
 func part2(input []string) int {
