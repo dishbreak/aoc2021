@@ -1,4 +1,4 @@
-go 1.17
+go 1.18
 
 module github.com/dishbreak/aoc2021
 
@@ -6,6 +6,8 @@ require (
 	github.com/dishbreak/aoc2020 v0.0.0-20211118215622-e88d8395a797
 	github.com/stretchr/testify v1.6.1
 )
+
+require github.com/google/uuid v1.3.0 // indirect
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect

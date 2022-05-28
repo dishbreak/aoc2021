@@ -1,9 +1,12 @@
 package main
 
 import (
+	"context"
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/dishbreak/aoc2020/lib"
 )
@@ -18,6 +21,11 @@ func main() {
 	fmt.Printf("Part 2: %d\n", part2(input))
 }
 
+type result struct {
+	Rounds int
+	Score  int
+}
+
 func part1(input [][]string) int {
 	parts := strings.Split(input[0][0], ",")
 	rounds := make([]int, len(parts))
@@ -30,16 +38,38 @@ func part1(input [][]string) int {
 	minRounds := len(rounds) + 1
 	winningScore := -1
 
-	for _, board := range boards {
-		b := newBingoBoard(board)
-		count, score := b.playGame(rounds)
-		if count < minRounds {
-			winningScore = score
-			minRounds = count
+	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	defer cancel()
+	problems := Generate(ctx, boards)
+	solutions := Solver(ctx, problems, func(ctx context.Context, problem []string) result {
+		r := result{}
+		board := newBingoBoard(problem)
+		r.Rounds, r.Score = board.playGame(rounds)
+		return r
+	})
+
+	reports := 0
+	for {
+		select {
+		case <-ctx.Done():
+			if t, ok := ctx.Deadline(); ok && t.Before(time.Now()) {
+				panic(errors.New("timed out"))
+			} else if err := ctx.Err(); err != nil {
+				panic(fmt.Errorf("error while executing: %w", err))
+			}
+
+		case r := <-solutions:
+			reports++
+			if minRounds > r.Rounds {
+				winningScore = r.Score
+				minRounds = r.Rounds
+			}
+			if reports == len(boards) {
+				return winningScore
+			}
 		}
 	}
 
-	return winningScore
 }
 
 func part2(input [][]string) int {
