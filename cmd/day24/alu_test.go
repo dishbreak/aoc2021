@@ -70,6 +70,7 @@ func TestAluExec(t *testing.T) {
 				"mod x 2",
 				"div w 2",
 				"mod w 2",
+				"",
 			},
 			input: []int{10},
 			expectedVars: map[string]int64{

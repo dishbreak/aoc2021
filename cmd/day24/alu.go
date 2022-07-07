@@ -51,6 +51,9 @@ func (a *Alu) Execute() {
 }
 
 func (a *Alu) runInstruction(inst string) {
+	if inst == "" {
+		return
+	}
 	parts := strings.Fields(inst)
 	switch parts[0] {
 	case "inp":
