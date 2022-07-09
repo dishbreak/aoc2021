@@ -128,3 +128,23 @@ func (p Point3D) Sub(o Point3D) Point3D {
 		Z: p.Z - o.Z,
 	}
 }
+
+func (p Point3D) Add(o Point3D) Point3D {
+	return Point3D{
+		X: p.X + o.X,
+		Y: p.Y + o.Y,
+		Z: p.Z + o.Z,
+	}
+}
+
+func abs(i int) int {
+	if i < 0 {
+		return -1 * i
+	}
+	return i
+}
+
+func (p Point3D) Dist(o Point3D) int {
+	d := p.Sub(o)
+	return abs(d.X) + abs(d.Y) + abs(d.Z)
+}

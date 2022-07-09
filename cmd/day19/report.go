@@ -6,10 +6,10 @@ import (
 )
 
 type Report struct {
-	ID          int
-	Beacons     []Point3D
-	translation Point3D
-	normalized  []Point3D
+	ID         int
+	Beacons    []Point3D
+	position   Point3D
+	normalized []Point3D
 }
 
 func NewReport(input []string) *Report {
