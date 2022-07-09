@@ -50,7 +50,7 @@ func part2(input [][]string) int {
 			if i == j {
 				continue
 			}
-			if d := one.position.Dist(other.position); d > max {
+			if d := one.Position.Dist(other.Position); d > max {
 				max = d
 			}
 		}
@@ -60,18 +60,16 @@ func part2(input [][]string) int {
 }
 
 func processReports(reports []*Report) []*Report {
-	fixed := make([]bool, len(reports))
 	q := make([]*Report, 1)
 	q[0] = reports[0]
-	reports[0].normalized = make([]Point3D, len(reports[0].Beacons))
-	copy(reports[0].normalized, reports[0].Beacons)
+	reports[0].RelativeTo = 0
 
 	for len(q) > 0 {
 		one := q[0]
 		q = q[1:]
 
 		for _, other := range reports {
-			if one.ID == other.ID || fixed[other.ID] {
+			if one.ID == other.ID || other.RelativeTo != -1 {
 				continue
 			}
 
@@ -82,9 +80,8 @@ func processReports(reports []*Report) []*Report {
 					normalized[i] = m.t(pt).Add(m.v)
 				}
 				other.Beacons = normalized
-				other.position = one.position.Add(m.v)
-
-				fixed[one.ID] = true
+				other.Position = m.v
+				other.RelativeTo = one.ID
 			}
 		}
 	}

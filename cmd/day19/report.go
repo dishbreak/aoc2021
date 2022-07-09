@@ -8,12 +8,14 @@ import (
 type Report struct {
 	ID         int
 	Beacons    []Point3D
-	position   Point3D
-	normalized []Point3D
+	Position   Point3D
+	RelativeTo int
 }
 
 func NewReport(input []string) *Report {
-	r := &Report{}
+	r := &Report{
+		RelativeTo: -1,
+	}
 	parts := strings.Fields(input[0])
 	parsed, _ := strconv.Atoi(parts[2])
 	r.ID = parsed
