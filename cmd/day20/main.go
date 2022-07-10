@@ -30,6 +30,10 @@ var neighbors = []image.Point{
 }
 
 func part1(input [][]string) int {
+	return enhance(input, 2)
+}
+
+func enhance(input [][]string, rounds int) int {
 	algo := make([]bool, 512)
 	for i, c := range input[0][0] {
 		if c == '#' {
@@ -47,7 +51,7 @@ func part1(input [][]string) int {
 		}
 	}
 
-	for round := 0; round < 2; round++ {
+	for round := 0; round < rounds; round++ {
 		minDim = minDim.Sub(image.Point{2, 2})
 		maxDim = maxDim.Add(image.Point{2, 2})
 		s2 := make(map[image.Point]bool)
@@ -57,7 +61,7 @@ func part1(input [][]string) int {
 				val := 0
 				for i, n := range neighbors {
 					n2 := p.Add(n)
-					if space[n2] {
+					if v, ok := space[n2]; (v && ok) || (algo[0] && !ok && round%2 == 1) {
 						val = val | (1 << i)
 					}
 				}
@@ -77,5 +81,5 @@ func part1(input [][]string) int {
 }
 
 func part2(input [][]string) int {
-	return 0
+	return enhance(input, 50)
 }
