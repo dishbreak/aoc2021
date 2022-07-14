@@ -102,7 +102,7 @@ type VictoryRecord struct {
 
 func part2(input []string) int64 {
 
-	memo := make(map[DiceGame]VictoryRecord)
+	memo := make(map[string]VictoryRecord)
 	p1, p2 := parseStartingPositions(input)
 
 	d := DiceGame{
@@ -128,8 +128,9 @@ func part2(input []string) int64 {
 	return p1Wins
 }
 
-func playGame(memo map[DiceGame]VictoryRecord, d DiceGame, roll int, isPlayer1 bool) (p1Wins, p2Wins int64) {
-	if r, ok := memo[d]; ok {
+func playGame(memo map[string]VictoryRecord, d DiceGame, roll int, isPlayer1 bool) (p1Wins, p2Wins int64) {
+	key := fmt.Sprint(d, roll, isPlayer1)
+	if r, ok := memo[key]; ok {
 		return r.Player1, r.Player2
 	}
 
@@ -138,7 +139,7 @@ func playGame(memo map[DiceGame]VictoryRecord, d DiceGame, roll int, isPlayer1 b
 	}
 
 	defer func() {
-		memo[d] = VictoryRecord{p1Wins, p2Wins}
+		memo[key] = VictoryRecord{p1Wins, p2Wins}
 	}()
 
 	if isPlayer1 {
