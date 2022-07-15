@@ -10,9 +10,10 @@ type Point3D struct {
 }
 
 type Cuboid struct {
-	Min Point3D
-	Max Point3D
-	On  bool
+	Min      Point3D
+	Max      Point3D
+	On       bool
+	nonEmpty bool
 }
 
 func (c Cuboid) Volume() int {
@@ -21,6 +22,10 @@ func (c Cuboid) Volume() int {
 		mult = 1
 	}
 	return mult * (c.Max.X - c.Min.X + 1) * (c.Max.Y - c.Min.Y + 1) * (c.Max.Z - c.Min.Z + 1)
+}
+
+func (c Cuboid) Empty() bool {
+	return !c.nonEmpty
 }
 
 func getMinMax(input string) (min, max int) {
@@ -43,6 +48,7 @@ func ToCuboid(input string) (c Cuboid) {
 	if parts[0] == "on" {
 		c.On = true
 	}
+	c.nonEmpty = true
 	c.Min, c.Max = getDims(parts[1])
 	return
 }
@@ -86,7 +92,9 @@ func Intersection(one, other Cuboid) (c Cuboid) {
 
 	if !c.Min.LessThan(c.Max) {
 		c = Cuboid{}
+		return
 	}
 
+	c.nonEmpty = true
 	return
 }
