@@ -50,11 +50,7 @@ func applyAndCount(input []string, bounds Cuboid) int64 {
 			}
 			tmp = append(tmp, inter)
 		}
-		// fmt.Println("for input: ", inst)
-		// for _, c := range tmp {
-		// 	fmt.Println(c)
-		// }
-		// fmt.Println()
+
 		cuboids = append(cuboids, tmp...)
 	}
 
