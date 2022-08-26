@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	input, err := lib.GetInput("inputs/dayNN.txt")
+	input, err := lib.GetInput("inputs/day25.txt")
 	if err != nil {
 		panic(err)
 	}
@@ -17,7 +17,8 @@ func main() {
 }
 
 func part1(input []string) int {
-	return 0
+	s := ToSpace(input)
+	return s.Simulate()
 }
 
 func part2(input []string) int {
