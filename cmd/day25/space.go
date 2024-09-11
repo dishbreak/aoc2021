@@ -30,6 +30,9 @@ func ToSpace(input []string) (s *Space) {
 	}
 
 	for y, line := range input {
+		if line == "" {
+			continue
+		}
 		for x, c := range line {
 			pt := image.Pt(x, y)
 			switch c {
