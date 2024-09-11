@@ -13,14 +13,9 @@ func main() {
 	}
 
 	fmt.Printf("Part 1: %d\n", part1(input))
-	fmt.Printf("Part 2: %d\n", part2(input))
 }
 
 func part1(input []string) int {
-	s := ToSpace(input)
+	s := ToSpace(input[:len(input)-1])
 	return s.Simulate()
-}
-
-func part2(input []string) int {
-	return 0
 }
